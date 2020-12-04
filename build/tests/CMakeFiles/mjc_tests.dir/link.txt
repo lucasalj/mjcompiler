@@ -1,1 +1,0 @@
-/usr/bin/g++-9 -g CMakeFiles/mjc_tests.dir/mjc_tests.cpp.o CMakeFiles/mjc_tests.dir/mjc_token_test.cpp.o CMakeFiles/mjc_tests.dir/mjc_lexer_test.cpp.o -o mjc_tests  ../src/libmjc.a /opt/vcpkg/installed/x64-linux/debug/lib/libfmtd.a 
