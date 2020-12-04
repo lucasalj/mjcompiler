@@ -1,0 +1,1 @@
+/usr/bin/g++-9 -g CMakeFiles/mjclexer.dir/mjclexer.cpp.o -o mjclexer  ../src/libmjc.a /opt/vcpkg/installed/x64-linux/debug/lib/libfmtd.a 
