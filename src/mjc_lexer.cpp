@@ -94,6 +94,19 @@ void Lexer::skipWhiteSpace() {
   } while (true);
 }
 
+void Lexer::skipUntilNewLine() {
+  for (auto currChar = nextChar(); true; currChar = nextChar()) {
+    if (!currChar) {
+      rollback();
+      error();
+      return;
+    }
+    if (*currChar == '\n') {
+      return;
+    }
+  }
+}
+
 void Lexer::error(std::string message) {
   auto currChar = nextChar();
   if (message.empty()) {

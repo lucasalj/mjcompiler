@@ -35,6 +35,7 @@ private:
   void retreat();
   void fillInputBuffer();
   void skipWhiteSpace();
+  void skipUntilNewLine();
   int readNaturalNumber(char firstDigit);
   std::string readIdentifierLike(char firstChar);
   void error(std::string message = "");
@@ -161,6 +162,16 @@ inline Token Lexer::nextToken() {
     case '\n': {
       ++d_lineNumber;
       skipWhiteSpace();
+    } break;
+
+    case '/': {
+      currChar = nextChar();
+      if (!currChar || *currChar != '/') {
+        rollback();
+        error();
+      } else {
+        skipUntilNewLine();
+      }
     } break;
 
     case '&': {
