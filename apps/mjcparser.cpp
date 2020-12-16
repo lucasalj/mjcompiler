@@ -83,19 +83,21 @@ private:
 int main(int argc, char *argv[]) {
   std::string inputFileName;
   bool help = false;
-  bool dotfmt = false;
+  bool dotfmt = true;
+  bool nonefmt = false;
 
-  auto cli =
-      (clipp::option("-v", "--version")([] {
-         std::cout << "mjcparser version 1.0\n\n";
-         std::exit(0);
-       }) % "Show version",
-       clipp::option("-h", "--help").set(help) % "Show help menu",
-       (clipp::option("-f", "--file") &
-        clipp::value("input file", inputFileName)) %
-           "Read from file",
-       (clipp::required("-t", "--fmt") & (clipp::required("dot").set(dotfmt))) %
-           "Output format");
+  auto cli = (clipp::option("-v", "--version")([] {
+                std::cout << "mjcparser version 1.0\n\n";
+                std::exit(0);
+              }) % "Show version",
+              clipp::option("-h", "--help").set(help) % "Show help menu",
+              (clipp::option("-f", "--file") &
+               clipp::value("input file", inputFileName)) %
+                  "Read from file",
+              (clipp::option("-t", "--fmt") &
+               (clipp::required("dot").set(dotfmt) |
+                clipp::required("none").set(nonefmt).set(dotfmt, false))) %
+                  "Output format (default: dot)");
 
   if (!clipp::parse(argc, argv, cli) || help) {
     std::cout << clipp::make_man_page(cli, argv[0])
@@ -143,7 +145,7 @@ int main(int argc, char *argv[]) {
   }
 
   auto parser = mjc::Parser{std::unique_ptr<mjc::LexerProtocol>(
-      new CLITokensLexer{std::move(tokenStrings)})};
+      std::make_unique<CLITokensLexer>(std::move(tokenStrings)))};
 
   auto ast = parser.parse();
   if (!parser.success()) {

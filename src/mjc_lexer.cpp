@@ -47,7 +47,8 @@ void Lexer::rollback() {
 }
 
 std::optional<Lexer> Lexer::create(std::string fileName) {
-  auto in = std::unique_ptr<std::istream>(new std::ifstream(fileName));
+  auto in =
+      std::unique_ptr<std::istream>(std::make_unique<std::ifstream>(fileName));
   if (in->good()) {
     Lexer lexer(std::move(in), std::move(fileName));
     return std::make_optional<Lexer>(std::move(lexer));

@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
   if (inputFileName.empty()) {
     if (std::string text; std::getline(std::cin, text, '\0')) {
 
-      auto in = std::unique_ptr<std::istream>(new std::istringstream(text));
+      auto in = std::unique_ptr<std::istream>(
+          std::make_unique<std::istringstream>(text));
       auto lexer = mjc::Lexer::create(std::move(in), "std::cin");
 
       outputTokens(&lexer);
