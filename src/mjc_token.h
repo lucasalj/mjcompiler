@@ -17,44 +17,44 @@ class Token {
 public:
   using ValueType = std::optional<std::variant<int, std::string>>;
   enum Kind {
-    e_CLASS,      // "class"
-    e_IDENTIFIER, // identifier
-    e_LBRACE,     // {
-    e_RBRACE,     // }
-    e_PUBLIC,     // "public"
-    e_STATIC,     // "static"
-    e_VOID,       // "void"
-    e_MAIN,       // "main"
-    e_LPAREN,     // (
-    e_RPAREN,     // )
-    e_STRING,     // "String"
-    e_LBRACKET,   // [
-    e_RBRACKET,   // ]
-    e_EXTENDS,    // "extends"
-    e_SEMI,       // ;
-    e_RETURN,     // "return"
-    e_COMMA,      // ,
-    e_INT,        // "int"
-    e_BOOLEAN,    // "boolean"
-    e_ASSIGN,     // =
-    e_IF,         // "if"
-    e_ELSE,       // "else"
-    e_WHILE,      // "while"
-    e_PRINTLN,    // "System.out.println"
-    e_AND,        // "&&"
-    e_LESSTHAN,   // <
-    e_PLUS,       // +
-    e_MINUS,      // -
-    e_TIMES,      // *
-    e_DOT,        // .
-    e_LENGTH,     // "length"
-    e_INT_LIT,    // integer literal
-    e_TRUE,       // "true"
-    e_FALSE,      // "false"
-    e_THIS,       // "this"
-    e_NEW,        // "new"
-    e_NOT,        // !,
-    e_EOF         // EOF
+    e_CLASS,            // "class"
+    e_IDENTIFIER,       // identifier
+    e_LBRACE,           // {
+    e_RBRACE,           // }
+    e_PUBLIC,           // "public"
+    e_STATIC,           // "static"
+    e_VOID,             // "void"
+    e_MAIN,             // "main"
+    e_LPAREN,           // (
+    e_RPAREN,           // )
+    e_STRING,           // "String"
+    e_LBRACKET,         // [
+    e_RBRACKET,         // ]
+    e_EXTENDS,          // "extends"
+    e_SEMI,             // ;
+    e_RETURN,           // "return"
+    e_COMMA,            // ,
+    e_INT,              // "int"
+    e_BOOLEAN,          // "boolean"
+    e_EQUAL,            // =
+    e_IF,               // "if"
+    e_ELSE,             // "else"
+    e_WHILE,            // "while"
+    e_PRINTLN,          // "System.out.println"
+    e_DOUBLE_AMPERSAND, // "&&"
+    e_LESSTHAN,         // <
+    e_PLUS,             // +
+    e_MINUS,            // -
+    e_STAR,             // *
+    e_DOT,              // .
+    e_LENGTH,           // "length"
+    e_INTEGER_LITERAL,  // integer literal
+    e_TRUE,             // "true"
+    e_FALSE,            // "false"
+    e_THIS,             // "this"
+    e_NEW,              // "new"
+    e_BANG,             // !
+    e_EOF               // EOF
   };
 
   Token() noexcept = default;
@@ -107,12 +107,13 @@ template <typename Arg,
 constexpr Token::Token(Kind kind, Arg &&value) noexcept
     : d_kind{kind}, d_value{std::forward<Arg>(value)} {
   MJC_ASSERT_ALWAYS(
-      (d_value &&
-       std::visit(OverloadSet{[&](int) -> bool { return d_kind == e_INT_LIT; },
-                              [&](std::string const &) -> bool {
-                                return d_kind == e_IDENTIFIER;
-                              }},
-                  *d_value)),
+      (d_value && std::visit(OverloadSet{[&](int) -> bool {
+                                           return d_kind == e_INTEGER_LITERAL;
+                                         },
+                                         [&](std::string const &) -> bool {
+                                           return d_kind == e_IDENTIFIER;
+                                         }},
+                             *d_value)),
       mjc::LoggingAssertionHandler{},
       "Token kind is not compatible with its value type {}", *this);
 }
@@ -130,7 +131,7 @@ template <
                 std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>>>
 constexpr void Token::matchValue(Funcs &&... funcs) const {
   MJC_ASSERT_ALWAYS(d_value.has_value(), mjc::LoggingAssertionHandler{},
-                    "Token {} has no value", *this);
+                    "Token {} has no value\n", *this);
   std::visit(OverloadSet{std::forward<Funcs>(funcs)...}, *d_value);
 }
 
@@ -144,7 +145,7 @@ template <
                 std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>>>>
 constexpr auto Token::matchValue(Funcs &&... funcs) const {
   MJC_ASSERT_ALWAYS(d_value.has_value(), mjc::LoggingAssertionHandler{},
-                    "Token {} has no value", *this);
+                    "Token {} has no value\n", *this);
   return std::visit(OverloadSet{std::forward<Funcs>(funcs)...}, *d_value);
 }
 

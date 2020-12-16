@@ -14,8 +14,8 @@ TEST_CASE("Token", "[token]") {
     REQUIRE(!singleArgumentConstructed.hasValue());
   }
   SECTION("kind and value constructor: integer literal") {
-    Token kindAndValueConstructed{Token::Kind::e_INT_LIT, 127};
-    REQUIRE(kindAndValueConstructed.kind() == Token::Kind::e_INT_LIT);
+    Token kindAndValueConstructed{Token::Kind::e_INTEGER_LITERAL, 127};
+    REQUIRE(kindAndValueConstructed.kind() == Token::Kind::e_INTEGER_LITERAL);
     REQUIRE(kindAndValueConstructed.hasValue());
     REQUIRE(kindAndValueConstructed.matchValue(
                 [](int value) -> int { return value; },
@@ -36,9 +36,9 @@ TEST_CASE("Token", "[token]") {
             std::string_view("Token(Token::Kind::e_LPAREN)"));
   }
   SECTION("Formatter: integer literal") {
-    Token intLit{Token::Kind::e_INT_LIT, 65535};
+    Token intLit{Token::Kind::e_INTEGER_LITERAL, 65535};
     REQUIRE(fmt::format("{}", intLit) ==
-            std::string_view("Token(Token::Kind::e_INT_LIT, 65535)"));
+            std::string_view("Token(Token::Kind::e_INTEGER_LITERAL, 65535)"));
   }
   SECTION("Formatter: identifier") {
     Token id{Token::Kind::e_IDENTIFIER, "i"};

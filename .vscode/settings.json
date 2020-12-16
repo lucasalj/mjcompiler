@@ -66,6 +66,10 @@
         "complex": "cpp",
         "list": "cpp",
         "cinttypes": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "charconv": "cpp",
+        "*.ipp": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     }
 }

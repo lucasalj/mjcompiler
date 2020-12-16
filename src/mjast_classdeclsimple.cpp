@@ -1,0 +1,1 @@
+#include <mjast_classdeclsimple.h>

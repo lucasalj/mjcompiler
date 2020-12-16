@@ -11,7 +11,6 @@ std::size_t StreamIO::streamSize(std::istream &in) {
 
 std::size_t StreamIO::readCharacters(std::istream &in, char *buffer,
                                      std::size_t nBytes) {
-  auto size = streamSize(in);
   in.read(buffer, nBytes);
   return in.gcount();
 }
