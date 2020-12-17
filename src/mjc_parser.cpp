@@ -465,7 +465,7 @@ std::unique_ptr<mjast::Exp> Parser::expression(int pri) {
     case Token::Kind::e_BANG: {
       leftExpFilled = true;
       eat(Token::Kind::e_BANG);
-      leftExp = expression();
+      leftExp = std::make_unique<mjast::Exp>(mjast::Not{expression()});
     } break;
 
     case Token::Kind::e_LPAREN: {
@@ -535,7 +535,7 @@ std::unique_ptr<mjast::Exp> Parser::expression(int pri) {
         auto rightExp = expression();
         eat(Token::Kind::e_RBRACKET);
         leftExp = std::make_unique<mjast::Exp>(
-            mjast::Plus{std::move(leftExp), std::move(rightExp)});
+            mjast::ArrayLookup{std::move(leftExp), std::move(rightExp)});
       } else {
         eat(Token::Kind::e_DOT);
         auto firstMethErr = true;
@@ -545,10 +545,7 @@ std::unique_ptr<mjast::Exp> Parser::expression(int pri) {
 
             eat(Token::Kind::e_LENGTH);
             leftExp = std::make_unique<mjast::Exp>(
-                mjast::Call{std::move(leftExp),
-                            std::make_unique<mjast::Identifier>(
-                                mjast::Identifier{std::string{"length"}}),
-                            std::make_unique<mjast::ExpList>()});
+                mjast::ArrayLength{std::move(leftExp)});
             break;
 
           } else if (nextTokenKind == Token::Kind::e_IDENTIFIER) {

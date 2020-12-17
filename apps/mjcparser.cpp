@@ -150,6 +150,7 @@ int main(int argc, char *argv[]) {
   auto ast = parser.parse();
   if (!parser.success()) {
     std::cerr << "Failed to parse input!\n";
+    return 1;
   }
 
   if (dotfmt) {
