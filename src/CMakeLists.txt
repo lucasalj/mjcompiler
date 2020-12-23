@@ -1,5 +1,7 @@
 find_package(fmt CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
+find_package(absl CONFIG REQUIRED)
+
 
 add_library(mjc
             mjc_traits.cpp
@@ -57,10 +59,12 @@ add_library(mjc
             mjast_vardecl.cpp
             mjast_vardecllist.cpp
             mjast_while.cpp
-            mjc_astdotprinter.cpp)
+            mjc_astdotprinter.cpp
+            mjc_stringtable.cpp)
 
 target_include_directories(mjc PUBLIC ./)
 target_compile_features(mjc PRIVATE cxx_std_17)
 target_link_libraries(mjc INTERFACE fmt::fmt fmt::fmt-header-only
                           PRIVATE magic_enum::magic_enum
-                          PUBLIC debug_assert)
+                          PUBLIC debug_assert
+                          PRIVATE absl::hash absl::algorithm absl::memory absl::hashtablez_sampler absl::container absl::any absl::base absl::bits absl::city absl::raw_hash_set)

@@ -6,16 +6,17 @@
 #include <magic_enum.hpp>
 #include <mjc_loggingassertionhandler.h>
 #include <mjc_overloadset.h>
+#include <mjc_stringtable.h>
 #include <mjc_traits.h>
 #include <optional>
-#include <string>
+#include <string_view>
 #include <variant>
 
 namespace mjc {
 
 class Token {
 public:
-  using ValueType = std::optional<std::variant<int, std::string>>;
+  using ValueType = std::optional<std::variant<int, StringIndex>>;
   enum Kind {
     e_CLASS,            // "class"
     e_IDENTIFIER,       // identifier
@@ -77,7 +78,7 @@ public:
               std::invoke_result_t<OverloadSet<std::decay_t<Funcs>...>, int>>,
           std::is_void<std::invoke_result_t<
               OverloadSet<std::decay_t<Funcs>...>,
-              std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>> =
+              std::add_lvalue_reference_t<std::add_const_t<StringIndex>>>>>> =
           nullptr>
   constexpr void matchValue(Funcs &&... funcs) const;
 
@@ -88,7 +89,7 @@ public:
               std::invoke_result_t<OverloadSet<std::decay_t<Funcs>...>, int>>>,
           std::negation<std::is_void<std::invoke_result_t<
               OverloadSet<std::decay_t<Funcs>...>,
-              std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>>> =
+              std::add_lvalue_reference_t<std::add_const_t<StringIndex>>>>>>> =
           nullptr>
   constexpr auto matchValue(Funcs &&... funcs) const;
 
@@ -110,7 +111,7 @@ constexpr Token::Token(Kind kind, Arg &&value) noexcept
       (d_value && std::visit(OverloadSet{[&](int) -> bool {
                                            return d_kind == e_INTEGER_LITERAL;
                                          },
-                                         [&](std::string const &) -> bool {
+                                         [&](std::string_view) -> bool {
                                            return d_kind == e_IDENTIFIER;
                                          }},
                              *d_value)),
@@ -128,7 +129,7 @@ template <
                 std::invoke_result_t<OverloadSet<std::decay_t<Funcs>...>, int>>,
             std::is_void<std::invoke_result_t<
                 OverloadSet<std::decay_t<Funcs>...>,
-                std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>>>
+                std::add_lvalue_reference_t<std::add_const_t<StringIndex>>>>>>>
 constexpr void Token::matchValue(Funcs &&... funcs) const {
   MJC_ASSERT_ALWAYS(d_value.has_value(), mjc::LoggingAssertionHandler{},
                     "Token {} has no value\n", *this);
@@ -142,7 +143,7 @@ template <
                 OverloadSet<std::decay_t<Funcs>...>, int>>>,
             std::negation<std::is_void<std::invoke_result_t<
                 OverloadSet<std::decay_t<Funcs>...>,
-                std::add_lvalue_reference_t<std::add_const_t<std::string>>>>>>>>
+                std::add_lvalue_reference_t<std::add_const_t<StringIndex>>>>>>>>
 constexpr auto Token::matchValue(Funcs &&... funcs) const {
   MJC_ASSERT_ALWAYS(d_value.has_value(), mjc::LoggingAssertionHandler{},
                     "Token {} has no value\n", *this);
@@ -180,7 +181,7 @@ auto fmt::formatter<mjc::Token>::format(mjc::Token const &token,
                               [](int value) -> std::string {
                                 return fmt::format(", {}", value);
                               },
-                              [](std::string const &value) -> std::string {
+                              [](std::string_view value) -> std::string {
                                 return fmt::format(", \"{}\"", value);
                               })
                         : std::string()));

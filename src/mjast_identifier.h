@@ -1,12 +1,12 @@
 #ifndef MJAST_IDENTIFIER_INCLUDED
 #define MJAST_IDENTIFIER_INCLUDED
 
-#include <string>
+#include <mjc_stringtable.h>
 
 namespace mjast {
 
 struct Identifier {
-  std::string name;
+  mjc::StringIndex name;
 };
 
 } // namespace mjast

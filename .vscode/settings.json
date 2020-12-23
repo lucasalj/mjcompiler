@@ -70,6 +70,8 @@
         "charconv": "cpp",
         "*.ipp": "cpp",
         "strstream": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "forward_list": "cpp",
+        "unordered_set": "cpp"
     }
 }

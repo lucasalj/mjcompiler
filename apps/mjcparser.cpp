@@ -8,6 +8,7 @@
 #include <mjc_astdotprinter.h>
 #include <mjc_parser.h>
 #include <mjc_streamio.h>
+#include <mjc_stringtable.h>
 #include <range/v3/action.hpp>
 #include <sstream>
 #include <string>
@@ -18,8 +19,8 @@ class CLITokensLexer : public mjc::LexerProtocol {
 public:
   ~CLITokensLexer() override = default;
 
-  CLITokensLexer(std::vector<std::string> strs)
-      : d_tokenStrings(std::move(strs)) {
+  CLITokensLexer(std::vector<std::string> strs, mjc::StringTable *stringtable)
+      : d_tokenStrings(std::move(strs)), d_stringtable_p{stringtable} {
     ranges::action::reverse(d_tokenStrings);
   }
 
@@ -48,8 +49,7 @@ public:
         if (tokenValStr[0] == '"' &&
             tokenValStr[tokenValStr.size() - 1] == '"') {
           auto str = tokenValStr.substr();
-          return mjc::Token(tokKind.value(),
-                            std::string(str.begin(), str.end()));
+          return mjc::Token(tokKind.value(), d_stringtable_p->insert(str));
         } else if (auto [p, ec] = std::from_chars(
                        tokenValStr.data(),
                        tokenValStr.data() + tokenValStr.size(), result);
@@ -78,6 +78,7 @@ private:
   bool d_success{true};
   std::size_t d_lineNumber{0};
   std::vector<std::string> d_tokenStrings;
+  mjc::StringTable *d_stringtable_p{nullptr};
 };
 
 int main(int argc, char *argv[]) {
@@ -144,8 +145,12 @@ int main(int argc, char *argv[]) {
     }
   }
 
-  auto parser = mjc::Parser{std::unique_ptr<mjc::LexerProtocol>(
-      std::make_unique<CLITokensLexer>(std::move(tokenStrings)))};
+  auto strTable = std::make_unique<mjc::StringTable>();
+
+  auto parser = mjc::Parser{
+      std::unique_ptr<mjc::LexerProtocol>(std::make_unique<CLITokensLexer>(
+          std::move(tokenStrings), strTable.get())),
+      strTable.get()};
 
   auto ast = parser.parse();
   if (!parser.success()) {

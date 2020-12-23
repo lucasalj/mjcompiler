@@ -1,12 +1,12 @@
 #ifndef MJAST_IDENTIFIEREXP_INCLUDED
 #define MJAST_IDENTIFIEREXP_INCLUDED
 
-#include <string>
+#include <mjc_stringtable.h>
 
 namespace mjast {
 
 struct IdentifierExp {
-  std::string name;
+  mjc::StringIndex name;
 };
 
 } // namespace mjast

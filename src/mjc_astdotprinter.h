@@ -58,7 +58,7 @@ private:
   std::pair<std::string, std::string> visit(mjast::Exp const &expression);
   std::pair<std::string, std::string>
   visit(mjast::Identifier const &identifier);
-  std::pair<std::string, std::string> visit(std::string const &str);
+  std::pair<std::string, std::string> visit(std::string_view str);
   std::pair<std::string, std::string> visit(int const &i);
 
   [[nodiscard]] int nextId();

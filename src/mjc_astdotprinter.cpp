@@ -645,8 +645,7 @@ AstDotPrinter::visit(mjast::Identifier const &identifier) {
   data += fmt::format("{} [label=\"Node: {}\"];\n", name, node);
   return {std::move(name), std::move(data)};
 }
-std::pair<std::string, std::string>
-AstDotPrinter::visit(std::string const &str) {
+std::pair<std::string, std::string> AstDotPrinter::visit(std::string_view str) {
   auto id = nextId();
   auto node = std::string("string");
   auto name = fmt::format("{}_{}", node, id);

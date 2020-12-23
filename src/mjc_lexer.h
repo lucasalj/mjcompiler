@@ -4,6 +4,7 @@
 #include <fstream>
 #include <mjc_lexerprotocol.h>
 #include <mjc_reservedwords.h>
+#include <mjc_stringtable.h>
 #include <optional>
 #include <string>
 
@@ -12,9 +13,10 @@ namespace mjc {
 class Lexer : public LexerProtocol {
 public:
   ~Lexer() override = default;
-  static std::optional<Lexer> create(std::string fileName);
+  static std::optional<Lexer> create(std::string fileName,
+                                     StringTable *stringtable);
   static Lexer create(std::unique_ptr<std::istream> inputFile,
-                      std::string fileName);
+                      std::string fileName, StringTable *stringtable);
   Lexer(Lexer &&other) noexcept;
   Lexer &operator=(Lexer &&other) noexcept;
   [[nodiscard]] Token nextToken() override;
@@ -27,7 +29,8 @@ private:
 
   enum Status { e_SUCCESS, e_FAILURE };
 
-  Lexer(std::unique_ptr<std::istream> inputStream, std::string fileName);
+  Lexer(std::unique_ptr<std::istream> inputStream, std::string fileName,
+        StringTable *stringtable);
   [[nodiscard]] std::optional<char> nextChar();
   [[nodiscard]] std::optional<char> peek();
   void rollback();
@@ -45,6 +48,7 @@ private:
   std::size_t d_lineNumber{0};
   std::string d_fileName;
   std::unique_ptr<std::istream> d_inputStream;
+  StringTable *d_stringtable_p{nullptr};
   Status d_executionStatus{e_SUCCESS};
 };
 
@@ -134,7 +138,7 @@ inline Token Lexer::nextToken() {
       if (keyword) {
         return Token{*keyword};
       }
-      return Token{Token::Kind::e_IDENTIFIER, id};
+      return Token{Token::Kind::e_IDENTIFIER, d_stringtable_p->insert(id)};
     } break;
 
     case '0':
@@ -250,7 +254,8 @@ inline Lexer::Lexer(Lexer &&other) noexcept
       d_inputPos{other.d_inputPos}, d_fencePos{other.d_fencePos},
       d_lineNumber{other.d_lineNumber}, d_fileName{std::move(other.d_fileName)},
       d_inputStream{std::move(other.d_inputStream)},
-      d_executionStatus{other.d_executionStatus} {}
+      d_stringtable_p{other.d_stringtable_p}, d_executionStatus{
+                                                  other.d_executionStatus} {}
 
 inline Lexer &Lexer::operator=(Lexer &&other) noexcept {
   d_inputBuffer = std::move(other.d_inputBuffer);
@@ -259,6 +264,7 @@ inline Lexer &Lexer::operator=(Lexer &&other) noexcept {
   d_lineNumber = other.d_lineNumber;
   d_fileName = std::move(other.d_fileName);
   d_inputStream = std::move(other.d_inputStream);
+  d_stringtable_p = other.d_stringtable_p;
   d_executionStatus = other.d_executionStatus;
 
   return *this;

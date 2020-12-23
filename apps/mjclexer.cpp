@@ -34,17 +34,20 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
+  auto strTable = std::make_unique<mjc::StringTable>();
+
   if (inputFileName.empty()) {
     if (std::string text; std::getline(std::cin, text, '\0')) {
 
       auto in = std::unique_ptr<std::istream>(
           std::make_unique<std::istringstream>(text));
-      auto lexer = mjc::Lexer::create(std::move(in), "std::cin");
+      auto lexer =
+          mjc::Lexer::create(std::move(in), "std::cin", strTable.get());
 
       outputTokens(&lexer);
     }
   } else {
-    auto lexer = mjc::Lexer::create(inputFileName);
+    auto lexer = mjc::Lexer::create(inputFileName, strTable.get());
     if (!lexer) {
       std::cerr << "Internal error!\n";
       return 1;

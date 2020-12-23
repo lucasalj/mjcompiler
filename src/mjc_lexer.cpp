@@ -46,25 +46,28 @@ void Lexer::rollback() {
   retreat();
 }
 
-std::optional<Lexer> Lexer::create(std::string fileName) {
+std::optional<Lexer> Lexer::create(std::string fileName,
+                                   StringTable *stringtable) {
   auto in =
       std::unique_ptr<std::istream>(std::make_unique<std::ifstream>(fileName));
   if (in->good()) {
-    Lexer lexer(std::move(in), std::move(fileName));
-    return std::make_optional<Lexer>(std::move(lexer));
+    return std::make_optional<Lexer>(
+        Lexer(std::move(in), std::move(fileName), stringtable));
   } else {
     return std::nullopt;
   }
 }
 
 Lexer Lexer::create(std::unique_ptr<std::istream> inputFile,
-                    std::string fileName) {
-  return Lexer{std::move(inputFile), std::move(fileName)};
+                    std::string fileName, StringTable *stringtable) {
+  return Lexer{std::move(inputFile), std::move(fileName), stringtable};
 }
 
-Lexer::Lexer(std::unique_ptr<std::istream> inputStream, std::string fileName)
-    : d_inputBuffer(s_InputBufferMaxCapacity, '\0'),
-      d_fileName{std::move(fileName)}, d_inputStream{std::move(inputStream)} {
+Lexer::Lexer(std::unique_ptr<std::istream> inputStream, std::string fileName,
+             StringTable *stringtable)
+    : d_inputBuffer(s_InputBufferMaxCapacity, '\0'), d_fileName{std::move(
+                                                         fileName)},
+      d_inputStream{std::move(inputStream)}, d_stringtable_p{stringtable} {
 
   fillInputBuffer();
 }

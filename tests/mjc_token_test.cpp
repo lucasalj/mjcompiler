@@ -3,6 +3,7 @@
 
 TEST_CASE("Token", "[token]") {
   using namespace mjc;
+  auto strTable = std::make_unique<mjc::StringTable>();
   SECTION("default constructor") {
     Token defaultConstructed;
     REQUIRE(defaultConstructed.kind() == Token::Kind::e_EOF);
@@ -22,13 +23,14 @@ TEST_CASE("Token", "[token]") {
                 [](auto &&) -> int { return -1; }) == 127);
   }
   SECTION("kind and value constructor: identifier") {
-    Token kindAndValueConstructed{Token::Kind::e_IDENTIFIER, "x"};
+    Token kindAndValueConstructed{Token::Kind::e_IDENTIFIER,
+                                  strTable->insert("x")};
     REQUIRE(kindAndValueConstructed.kind() == Token::Kind::e_IDENTIFIER);
     REQUIRE(kindAndValueConstructed.hasValue());
     REQUIRE(
         kindAndValueConstructed.matchValue(
-            [](std::string const &value) -> std::string_view { return value; },
-            [](auto &&) -> std::string_view { return "error"; }) == "x");
+            [](std::string_view value) -> std::string_view { return value; },
+            [](int) -> std::string_view { return "error"; }) == "x");
   }
   SECTION("Formatter: simple") {
     Token lparen{Token::Kind::e_LPAREN};
@@ -41,7 +43,7 @@ TEST_CASE("Token", "[token]") {
             std::string_view("Token(Token::Kind::e_INTEGER_LITERAL, 65535)"));
   }
   SECTION("Formatter: identifier") {
-    Token id{Token::Kind::e_IDENTIFIER, "i"};
+    Token id{Token::Kind::e_IDENTIFIER, strTable->insert("i")};
     REQUIRE(fmt::format("{}", id) ==
             std::string_view("Token(Token::Kind::e_IDENTIFIER, \"i\")"));
   }

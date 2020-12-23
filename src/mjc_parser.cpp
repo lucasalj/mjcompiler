@@ -3,7 +3,8 @@
 
 namespace mjc {
 
-Parser::Parser(std::unique_ptr<LexerProtocol> lex) : d_lexer{std::move(lex)} {}
+Parser::Parser(std::unique_ptr<LexerProtocol> lex, StringTable *stringtable)
+    : d_lexer{std::move(lex)}, d_stringtable_p{stringtable} {}
 
 std::unique_ptr<mjast::Program> Parser::parse() {
   advance();
@@ -160,8 +161,8 @@ std::unique_ptr<mjast::MethodDecl> Parser::methodDeclaration() {
 
     if (d_tok.kind() == Token::Kind::e_IDENTIFIER) {
       auto id = d_tok.matchValue(
-          [](std::string const &id) -> std::string { return id; },
-          [](auto &&) -> std::string { return {}; });
+          [](StringIndex const &id) -> StringIndex { return id; },
+          [&](auto &&) -> StringIndex { return d_stringtable_p->insert(""); });
       eat(Token::Kind::e_IDENTIFIER);
 
       // Disambiguate beetween another var and the first statement
@@ -250,9 +251,11 @@ std::unique_ptr<mjast::Type> Parser::type() {
 
     case Token::Kind::e_IDENTIFIER: {
       // type : identifier
-      auto typName = mjast::IdentifierType{
-          d_tok.matchValue([&](std::string id) -> std::string { return id; },
-                           [&](auto const &) -> std::string { return {}; })};
+      auto typName = mjast::IdentifierType{d_tok.matchValue(
+          [&](StringIndex const &id) -> StringIndex { return id; },
+          [&](auto const &) -> StringIndex {
+            return d_stringtable_p->insert("");
+          })};
       eat(Token::Kind::e_IDENTIFIER);
       return std::make_unique<mjast::Type>(std::move(typName));
     } break;
@@ -410,8 +413,10 @@ std::unique_ptr<mjast::Exp> Parser::expression(int pri) {
     case Token::Kind::e_IDENTIFIER: {
       leftExpFilled = true;
       auto name = d_tok.matchValue(
-          [](std::string const &x) -> std::string { return x; },
-          [](auto const &) -> std::string { return {}; });
+          [](StringIndex const &x) -> StringIndex { return x; },
+          [&](auto const &) -> StringIndex {
+            return d_stringtable_p->insert("");
+          });
       eat(Token::Kind::e_IDENTIFIER);
       leftExp =
           std::make_unique<mjast::Exp>(mjast::IdentifierExp{std::move(name)});
@@ -603,8 +608,10 @@ std::unique_ptr<mjast::Exp> Parser::expression(int pri) {
 std::unique_ptr<mjast::Identifier> Parser::identifier() {
   // identifier : IDENTIFIER
   auto name = std::make_unique<mjast::Identifier>(mjast::Identifier{
-      d_tok.matchValue([](std::string const &x) -> std::string { return x; },
-                       [](auto const &) -> std::string { return {}; })});
+      d_tok.matchValue([](StringIndex const &x) -> StringIndex { return x; },
+                       [&](auto const &) -> StringIndex {
+                         return d_stringtable_p->insert("");
+                       })});
   eat(Token::Kind::e_IDENTIFIER);
   return std::move(name);
 }

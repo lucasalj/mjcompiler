@@ -133,7 +133,7 @@ namespace mjc {
 
 class Parser {
 public:
-  Parser(std::unique_ptr<LexerProtocol> lex);
+  Parser(std::unique_ptr<LexerProtocol> lex, StringTable *stringtable);
   std::unique_ptr<mjast::Program> parse();
   bool success() const;
 
@@ -155,6 +155,7 @@ private:
   bool d_success{true};
   Token d_tok{Token::Kind::e_EOF};
   std::unique_ptr<LexerProtocol> d_lexer;
+  StringTable *d_stringtable_p{nullptr};
 };
 } // namespace mjc
 
